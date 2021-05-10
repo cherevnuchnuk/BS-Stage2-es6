@@ -6,7 +6,9 @@ export function createElement({ tagName, className, attributes = {} }) {
     element.classList.add(...classNames);
   }
 
-  Object.keys(attributes).forEach((key) => element.setAttribute(key, attributes[key]));
+  Object
+    .keys(attributes)
+    .forEach((key) => element.setAttribute(key, attributes[key]));
 
   return element;
 }
