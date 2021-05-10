@@ -7,27 +7,39 @@ export async function fight(firstFighter, secondFighter) {
         ...firstFighter,
         currentHealth: firstFighter.health,
         blocked: false,
-        bar: document.getElementById("left-fighter-indicator")
+        bar: document.getElementById('left-fighter-indicator'),
+        keySequenceNumber: -1,
+        prevCriticalHitTime: 0
       },
       secondPlayer: {
         ...secondFighter,
         currentHealth: secondFighter.health,
         blocked: false,
-        bar: document.getElementById("right-fighter-indicator")
+        bar: document.getElementById('right-fighter-indicator'),
+        keySequenceNumber: -1,
+        prevCriticalHitTime: 0
       }
     };
-    document.addEventListener("keydown", (event) => {
+    document.addEventListener('keydown', (event) => {
       const keyPressed = event.code;
-      console.log(gameState)
+
+      // handle classical hit buttons
       if (keyPressed === controls.PlayerOneBlock) {
         gameState.firstPlayer.blocked = true;
       } else if (keyPressed === controls.PlayerTwoBlock) {
         gameState.secondPlayer.blocked = true;
       } else if (keyPressed === controls.PlayerOneAttack) {
         hitPlayer(gameState.firstPlayer, gameState.secondPlayer);
-      } else if (keyPressed === controls.PlayerOneAttack) {
+      } else if (keyPressed === controls.PlayerTwoAttack) {
         hitPlayer(gameState.secondPlayer, gameState.firstPlayer);
       }
+      // handle sequence critical hit
+      if (handleSequence(gameState.firstPlayer, keyPressed, controls.PlayerOneCriticalHitCombination)) {
+        criticalHitPlayer(gameState.firstPlayer, gameState.secondPlayer);
+      } else if (handleSequence(gameState.secondPlayer, keyPressed, controls.PlayerTwoCriticalHitCombination)) {
+        criticalHitPlayer(gameState.secondPlayer, gameState.firstPlayer);
+      }
+      // handle win
       if (gameState.firstPlayer.currentHealth <= 0) {
         resolve(secondFighter);
       } else if (gameState.secondPlayer.currentHealth <= 0) {
@@ -35,7 +47,7 @@ export async function fight(firstFighter, secondFighter) {
       }
     });
 
-    document.addEventListener("keyup", (event) => {
+    document.addEventListener('keyup', (event) => {
       const keyPressed = event.code;
       if (keyPressed === controls.PlayerOneBlock) {
         gameState.firstPlayer.blocked = false;
@@ -65,11 +77,36 @@ export function getBlockPower(fighter) {
   return defense * dodgeChance;
 }
 
+export function handleSequence(player, pressedKey, sequence) {
+  let keyIndex = sequence.indexOf(pressedKey);
+  if (keyIndex !== -1 && keyIndex - player.keySequenceNumber === 1) {
+    // means we matched previous keys
+    if (keyIndex === sequence.length - 1) {
+      return true;
+    } else {
+      player.keySequenceNumber = keyIndex;
+    }
+  } else {
+    player.keySequenceNumber = -1;
+  }
+  return false;
+}
+
 
 export function hitPlayer(attacker, defender) {
   if (!attacker.blocked && !defender.blocked) {
     let damage = getDamage(attacker, defender);
     defender.currentHealth -= damage;
     defender.bar.style.width = (defender.currentHealth * 100) / defender.health + '%';
+  }
+}
+
+export function criticalHitPlayer(attacker, defender) {
+  let currentTime = Date.now();
+  if (currentTime - attacker.prevCriticalHitTime > 10000) {
+    let damage = getHitPower(attacker);
+    defender.currentHealth -= 2 * damage;
+    defender.bar.style.width = (defender.currentHealth * 100) / defender.health + '%';
+    attacker.prevCriticalHitTime = currentTime;
   }
 }
