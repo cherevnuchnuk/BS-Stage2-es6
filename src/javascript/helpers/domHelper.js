@@ -12,3 +12,9 @@ export function createElement({ tagName, className, attributes = {} }) {
 
   return element;
 }
+
+export function createInfoBar({ tagName, className, text, attributes = {} }) {
+  const element = createElement({ tagName, className, attributes });
+  element.innerHTML = text;
+  return element;
+}

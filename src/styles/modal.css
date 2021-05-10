@@ -15,6 +15,7 @@
   flex-direction: column;
   border: 1px solid rgba(0, 0, 0, .2);
   background-color: white;
+  border-radius: 5px;
 }
 
 .modal-header {
@@ -23,6 +24,7 @@
   justify-content: space-between;
   min-width: 300px;
   padding: 1rem;
+  text-align: center;
   border-bottom: 1px solid #e9ecef;
   font-weight: 700;
   font-size: 22px;
@@ -30,6 +32,23 @@
 
 .modal-body {
   padding: 1rem;
+  text-align: center;
+}
+
+.modal-element{
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.modal-button{
+  text-align: center;
+  padding: 7px;
+  border: 2px solid black;
+  cursor: pointer;
+  border-radius: 5px;
+  color: white;
+  background: #36a236;
+  font-size: 16px;
 }
 
 .close-btn {
